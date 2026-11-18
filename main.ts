@@ -11,6 +11,16 @@
 // no files. State comes from each batch's account; closes count received bars
 // only (a missing bar appends nothing and sends no order).
 
+// Why this shape (research findings on the dev window):
+//   - The window is one big V: a -2.80% down day, then a slow grind back.
+//     There is exactly one real dip (bar 67, -201 bps) and it recovers
+//     +253 bps only if held ~440 bars, so tight TPs / fast exits leave
+//     money on the table — hence the wide +240 bps TP and 480-bar hold.
+//   - Trend-following does not work here: momentum / EMA-cross loses
+//     -$148 on this window, so the bot buys the dip instead of the trend.
+//   - The late fallback buy (>= 120 bps from bar 1000) exists so the bot
+//     never finishes with zero trades if the deep dip never comes.
+
 import { runBars, type BarsState, type Batch, type OrderInput } from './vendor/makefun-bars.ts';
 
 const SYMBOL = 'CBBTC';
